@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -19,29 +19,43 @@ func HandleNewUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var newUser dto.NewUser
-	if err := json.NewDecoder(r.Body).Decode(&newUser); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+	newUser, err := getRegistrationDataFromRequest(r)
+	if err != nil {
+		logger.Error("Failed to get registration data: %v", err)
+		http.Error(w, "Bad request: "+err.Error(), http.StatusBadRequest)
 		return
 	}
-	logger.Debug("Received user data: %+v", newUser)
 
-	createdUser, err := saveUser(r.Context(), newUser)
+	_, err = saveUser(r.Context(), newUser)
 	if err != nil {
 		logger.Error("Failed to save user: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	if err = json.NewEncoder(w).Encode(&createdUser); err != nil {
-		logger.Error("failed to encode response: %v", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-	}
-
+	http.Redirect(w, r, "http://localhost:8000", http.StatusSeeOther)
 	logger.Info("Successfully added new user")
 }
 
-func saveUser(ctx context.Context, user dto.NewUser) (*models.User, error) {
+func getRegistrationDataFromRequest(r *http.Request) (*dto.NewUserDto, error) {
+	err := r.ParseForm()
+	if err != nil {
+		return nil, fmt.Errorf("invalid request body")
+	}
+
+	newUser := dto.NewUserDto{
+		Email:    r.FormValue("email"),
+		Password: r.FormValue("password"),
+	}
+
+	if newUser.Email == "" || newUser.Password == "" {
+		return nil, errors.New("email and password are required")
+	}
+
+	return &newUser, nil
+}
+
+func saveUser(ctx context.Context, user *dto.NewUserDto) (*models.User, error) {
 	logger.Info("Saving new user")
 
 	query := fmt.Sprintf("INSERT INTO users (email, password) VALUES ('%s', '%s') RETURNING id, email, created_at",

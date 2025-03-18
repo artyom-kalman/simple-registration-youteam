@@ -44,7 +44,7 @@ func main() {
 
 	handlers.InitHandlers(db)
 
-	http.HandleFunc("/api/user", handlers.HandleNewUser)
+	http.HandleFunc("/api/register", handlers.HandleNewUser)
 
 	logger.Info("Starting server on port %s", port)
 	err = http.ListenAndServe(":"+port, nil)

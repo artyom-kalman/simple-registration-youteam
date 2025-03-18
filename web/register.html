@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Форма регистрации</title>
+    </head>
+    <body>
+        <h1>Форма регистрации</h1>
+        <form
+            id="registartion"
+            action="http://localhost:3030/api/register"
+            method="post"
+        >
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required />
+            <br /><br />
+
+            <label for="password">Пароль:</label>
+            <input type="password" id="password" name="password" required />
+            <br /><br />
+
+            <button>Регистрация</button>
+        </form>
+    </body>
+</html>
