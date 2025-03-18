@@ -42,6 +42,7 @@ func getRegistrationDataFromRequest(r *http.Request) (*dto.NewUserDto, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid request body")
 	}
+	logger.Debug("Request user data: %+v", r.PostForm)
 
 	newUser := dto.NewUserDto{
 		Email:    r.FormValue("email"),
