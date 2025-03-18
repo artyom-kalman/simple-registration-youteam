@@ -33,7 +33,7 @@ func HandleNewUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "http://localhost:8000", http.StatusSeeOther)
+	http.Redirect(w, r, r.Header.Get("Origin"), http.StatusSeeOther)
 	logger.Info("Successfully added new user")
 }
 
